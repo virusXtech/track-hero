@@ -1,0 +1,47 @@
+{
+  "name": "track-hero",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "commitmsg": "commitlint -e -c",
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "postinstall": "husky install",
+    "fix": "yarn lint --fix && yarn prettier:write",
+    "lint": "eslint --ext .ts,.vue src --report-unused-disable-directives --max-warnings 0",
+    "prettier:write": "prettier --write \"**/*.+(ts|vue|json|css|md)\"",
+    "prettier:check": "prettier --check \"**/*.+(ts|vue|json|css|md)\""
+  },
+  "dependencies": {
+    "papaparse": "^5.4.1",
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.6",
+    "@commitlint/config-conventional": "^17.6.6",
+    "@types/papaparse": "^5.3.9",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "@vue/eslint-config-typescript": "^12.0.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-vue": "^9.17.0",
+    "husky": "^8.0.0",
+    "postcss": "^8.4.30",
+    "prettier": "^3.0.3",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vue-eslint-parser": "^9.3.1",
+    "vue-tsc": "^1.8.5"
+  },
+  "engines": {
+    "node": "^18.16.0"
+  },
+  "packageManager": "yarn@3.6.3"
+}

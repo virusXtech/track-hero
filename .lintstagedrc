@@ -1,0 +1,5 @@
+{
+  "lint-staged": {
+    "*.+(ts|vue|json|css|md)": ["yarn lint && yarn prettier:check"]
+  }
+}
