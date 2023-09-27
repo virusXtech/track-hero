@@ -12,7 +12,6 @@
           @click="toggleTheme"
         >
           <svg
-            ref="darkIcon"
             :class="[darkTheme ? 'hidden' : '', 'w-5', 'h-5']"
             fill="currentColor"
             viewBox="0 0 20 20"
@@ -21,8 +20,7 @@
             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
           </svg>
           <svg
-            ref="lightIcon"
-            :class="[!darkTheme ? 'hidden' : '', , 'w-5', 'h-5']"
+            :class="[darkTheme ? '' : 'hidden', 'w-5', 'h-5']"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -47,9 +45,6 @@ export default {
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-
-const lightIcon = ref<HTMLOrSVGElement | null>(null)
-const darkIcon = ref<HTMLOrSVGElement | null>(null)
 const darkTheme = ref(true)
 
 const toggleTheme = () => {
@@ -58,9 +53,11 @@ const toggleTheme = () => {
     if (localStorage.getItem('color-theme') === 'light') {
       document.documentElement.classList.add('dark')
       localStorage.setItem('color-theme', 'dark')
+      darkTheme.value = true
     } else {
       document.documentElement.classList.remove('dark')
       localStorage.setItem('color-theme', 'light')
+      darkTheme.value = false
     }
 
     // if NOT set via local storage previously
@@ -68,9 +65,11 @@ const toggleTheme = () => {
     if (document.documentElement.classList.contains('dark')) {
       document.documentElement.classList.remove('dark')
       localStorage.setItem('color-theme', 'light')
+      darkTheme.value = false
     } else {
       document.documentElement.classList.add('dark')
       localStorage.setItem('color-theme', 'dark')
+      darkTheme.value = true
     }
   }
 }
@@ -84,7 +83,7 @@ onMounted(() => {
     darkTheme.value = true
   } else {
     document.documentElement.classList.remove('dark')
-    darkTheme.value = true
+    darkTheme.value = false
   }
 })
 </script>
