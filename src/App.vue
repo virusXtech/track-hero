@@ -111,9 +111,6 @@ const isTableVisible = ref(false)
 const tableData = ref<Record<string, string | number>[]>([])
 const totalIds = ref(0)
 const scannedIds = ref(0)
-const positiveSound = new Audio(PositiveAudio)
-const duplicateSound = new Audio(DuplicateAudio)
-const notFoundSound = new Audio(NotFoundAudio)
 
 const notification = reactive({
   visible: false,
@@ -174,17 +171,17 @@ const search = (input: string) => {
   if (count === undefined) {
     resultMessage.value = `${input} Not Found`
     results[0].status = true
-    notFoundSound.play()
+    new Audio(NotFoundAudio).play()
   } else if (count >= 1) {
     resultMessage.value = `${input} Duplicate Found`
     results[1].status = true
-    duplicateSound.play()
+    new Audio(DuplicateAudio).play()
   } else {
     resultMessage.value = `${input} found`
     results[2].status = true
     trackingMap.set(input, count + 1)
     scannedIds.value += 1
-    positiveSound.play()
+    new Audio(PositiveAudio).play()
   }
 
   // Reset all status properties to false except the one that matches the result
