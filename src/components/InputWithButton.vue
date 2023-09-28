@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { THButton } from '../components'
-import { ref, defineProps, defineEmits, onMounted } from 'vue'
+import { ref, defineEmits, onMounted } from 'vue'
 
 const { defaultValue, resetAfterConfirm } = defineProps({
   buttonLabel: { type: String, required: true },
