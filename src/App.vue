@@ -156,11 +156,12 @@ const handleFileUpload = (file: File) => {
 const createSet = () => {
   const data = JSON.parse(jsonData.value) as Record<string, string>[]
 
-  totalIds.value = data.length
+  data.map(item => trackingMap.set(item[trackingIdColName.value], 0))
+
+  totalIds.value = trackingMap.size
+
   notification.text = `${totalIds.value} Tracking ID Found`
   notification.visible = true
-
-  data.map(item => trackingMap.set(item[trackingIdColName.value], 0))
 }
 
 const search = (input: string) => {
