@@ -156,6 +156,7 @@ const createSet = () => {
   data.map(item => trackingMap.set(item[trackingIdColName.value], 0))
 
   totalIds.value = trackingMap.size
+  scannedIds.value = 0
 
   notification.text = `${totalIds.value} Tracking ID Found`
   notification.visible = true
