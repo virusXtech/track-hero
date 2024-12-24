@@ -2,86 +2,104 @@
   <Navbar />
   <Notification :notification="notification.text" :show="notification.visible" @hide="handleHideNotification" />
   <MainContainer>
-    <div class="flex gap-4 flex-wrap justify-around flex-row">
-      <!--Inputs -->
-      <div class="flex gap-4 justify-around flex-col">
-        <Card class="flex gap-4 justify-around flex-col">
-          <FileUpload accepted-file-formats=".csv" @on-file-upload="handleFileUpload" />
-          <InputWithButton
-            button-label="Confirm"
-            default-value="Tracking ID"
-            input-id="trackingIdColName"
-            label="Tracking ID Column Name"
-            placeholder="Enter Tracking ID Column Name"
-            @confirm="createSet"
-          />
-        </Card>
+    <section id="home" class="flex items-center justify-center h-screen">
+      <div class="flex gap-4 flex-wrap justify-between flex-row">
+        <!--Inputs -->
+        <div class="flex gap-4 justify-center flex-col">
+          <Card class="flex gap-4 justify-around flex-col">
+            <FileUpload accepted-file-formats=".csv" @on-file-upload="handleFileUpload" />
+          </Card>
 
-        <Card>
-          <div class="flex gap-4 flex-col justify-center">
-            <InputWithButton
-              button-label="Search"
-              input-id="trackingId"
-              :has-icon="true"
-              label="Tracking ID"
-              placeholder="Enter Tracking ID"
-              :reset-after-confirm="true"
-              @confirm="search"
-            >
-              <template #icon>
-                <SearchIcon />
-              </template>
-            </InputWithButton>
-            <div class="flex flex-row justify-between items-center">
-              <div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" v-model="isTableVisible" @change="generateTableData" class="sr-only peer" />
-                  <div
-                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">Show Table</span>
-                </label>
+          <Card v-show="rows.length">
+            <div class="flex gap-4 flex-col justify-center">
+              <InputWithButton
+                button-label="Search"
+                input-id="trackingId"
+                :has-icon="true"
+                label="Tracking ID"
+                placeholder="Enter Tracking ID"
+                :reset-after-confirm="true"
+                @confirm="search"
+              >
+                <template #icon>
+                  <SearchIcon />
+                </template>
+              </InputWithButton>
+              <div class="flex flex-row justify-between items-center">
+                <THButton @press="scrollToTable">View Table</THButton>
               </div>
-              <THButton @press="generateTableData">Refresh Table</THButton>
             </div>
+          </Card>
+        </div>
+
+        <!--Outputs-->
+        <Card v-show="isResultVisible" class="w-72 flex flex-col mt-4 gap-4">
+          <div>
+            <Typography class="text-2xl">Result</Typography>
+            <Typography>{{ resultMessage }}</Typography>
+          </div>
+
+          <div id="lights" class="flex flex-col mt-4 gap-4">
+            <div
+              v-for="result in results"
+              :key="result.bg"
+              :class="[result.status ? result.bg : '']"
+              class="h-16 border border-gray-200 rounded-full shadow dark:border-gray-700"
+            ></div>
+          </div>
+
+          <div>
+            <Typography class="text-2xl">Progress</Typography>
+            <Typography>{{ scannedIds }} / {{ totalIds }}</Typography>
           </div>
         </Card>
       </div>
+    </section>
 
-      <!--Outputs-->
-      <Card v-show="isResultVisible" class="w-72 flex flex-col mt-4 gap-4">
-        <div>
-          <Typography class="text-2xl">Result</Typography>
-          <Typography>{{ resultMessage }}</Typography>
-        </div>
-
-        <div id="lights" class="flex flex-col mt-4 gap-4">
-          <div
-            v-for="result in results"
-            :key="result.bg"
-            :class="[result.status ? result.bg : '']"
-            class="h-16 border border-gray-200 rounded-full shadow dark:border-gray-700"
-          ></div>
-        </div>
-
-        <div>
-          <Typography class="text-2xl">Progress</Typography>
-          <Typography>{{ scannedIds }} / {{ totalIds }}</Typography>
-        </div>
-      </Card>
-    </div>
-
-    <DataTable
-      :columns="[
-        { name: 'Tracking Id', id: 'trackingId' },
-        { name: 'Count', id: 'count' },
-      ]"
-      :rows="tableData"
-      v-show="isTableVisible"
-      class="flex justify-center items-center mt-8"
-    />
+    <section id="table" v-show="rows.length">
+      <DataTable
+        :columns="columns"
+        :rows="rows"
+        class="flex justify-center items-center"
+        @copy="toast('Copied to clipboard')"
+      />
+    </section>
   </MainContainer>
 </template>
+
+<script lang="ts">
+const trackingIdColName = 'Tracking ID'
+const orderIdColName = 'Order Id'
+const skuColName = 'SKU'
+
+const columns: TColumn[] = [
+  {
+    id: 'trackingId',
+    header: 'Tracking ID',
+    accessorKey: trackingIdColName,
+    enableSorting: true,
+  },
+  {
+    id: 'orderId',
+    header: 'Order Id',
+    accessorKey: orderIdColName,
+    enableSorting: true,
+    enableCopy: true,
+  },
+  {
+    id: 'sku',
+    header: 'SKU',
+    accessorKey: skuColName,
+    enableSorting: true,
+  },
+  {
+    id: 'count',
+    header: 'Count',
+    accessorKey: 'count',
+    enableSorting: true,
+  },
+]
+</script>
 
 <script setup lang="ts">
 import {
@@ -101,17 +119,15 @@ import { reactive, ref } from 'vue'
 import PositiveAudio from './assets/positive.wav'
 import DuplicateAudio from './assets/duplicate.wav'
 import NotFoundAudio from './assets/not-found.wav'
-
-const jsonData = ref('')
-const trackingIdColName = ref('Tracking ID')
+import { TColumn, TData } from './types'
 
 const isResultVisible = ref(false)
 const resultMessage = ref('')
-const isTableVisible = ref(false)
-const tableData = ref<Record<string, string | number>[]>([])
 const totalIds = ref(0)
 const scannedIds = ref(0)
 
+const tableData = ref<Record<string, TData>>({})
+const rows = ref<TData[]>([])
 const notification = reactive({
   visible: false,
   text: '',
@@ -131,8 +147,6 @@ const results = reactive([
   },
 ])
 
-const trackingMap: Map<string, number> = new Map()
-
 const handleHideNotification = () => {
   notification.text = ''
   notification.visible = false
@@ -143,64 +157,71 @@ const handleFileUpload = (file: File) => {
   // @ts-ignore
   parse(file, {
     header: true,
-    complete: (results: { data: Record<string, string> }) => {
-      jsonData.value = JSON.stringify(results.data)
-      createSet()
+    complete: (results: { data: Record<string, string>[] }) => {
+      initializeProcess(results.data)
     },
   })
 }
 
-const createSet = () => {
-  const data = JSON.parse(jsonData.value) as Record<string, string>[]
+const initializeProcess = (excelData: Record<string, string>[]) => {
+  for (const row of excelData) {
+    if (row[trackingIdColName] === undefined) {
+      continue
+    }
+    tableData.value[row[trackingIdColName]] = {
+      [trackingIdColName]: row[trackingIdColName],
+      [orderIdColName]: row[orderIdColName],
+      [skuColName]: row[skuColName],
+      count: 0,
+    }
+  }
 
-  data.map(item => trackingMap.set(item[trackingIdColName.value], 0))
+  rows.value = Object.values(tableData.value) as TData[]
 
-  totalIds.value = trackingMap.size
+  totalIds.value = Object.keys(tableData.value).length
   scannedIds.value = 0
 
-  notification.text = `${totalIds.value} Tracking ID Found`
+  isResultVisible.value = false
+
+  results.forEach(item => (item.status = false))
+  toast('File Uploaded Successfully')
+}
+
+const toast = (message: string) => {
+  notification.text = message
   notification.visible = true
 }
 
-const search = (input: string) => {
-  if (!input) return
+const search = (userInput: string) => {
+  if (!userInput) return
 
   isResultVisible.value = true
 
-  const count = trackingMap.get(input)
+  const row = tableData.value[userInput]
 
-  if (count === undefined) {
-    resultMessage.value = `${input} Not Found`
+  results.forEach(item => (item.status = false))
+
+  if (row === undefined) {
+    resultMessage.value = `${userInput} Not Found`
     results[0].status = true
     new Audio(NotFoundAudio).play()
-  } else if (count >= 1) {
-    resultMessage.value = `${input} Duplicate Found`
+  } else if (row.count >= 1) {
+    resultMessage.value = `${userInput} Duplicate Found`
     results[1].status = true
     new Audio(DuplicateAudio).play()
   } else {
-    resultMessage.value = `${input} found`
+    resultMessage.value = `${userInput} found`
     results[2].status = true
-    trackingMap.set(input, count + 1)
     scannedIds.value += 1
+    row.count += 1
+    tableData.value[userInput] = row
     new Audio(PositiveAudio).play()
   }
 
-  // Reset all status properties to false except the one that matches the result
-  results.forEach(item => {
-    item.status = item === results[count === undefined ? 0 : count >= 1 ? 1 : 2]
-  })
+  rows.value = Object.values(tableData.value) as TData[]
 }
 
-const generateTableData = () => {
-  if (isTableVisible.value) {
-    tableData.value = []
-    trackingMap.forEach((value, key) => {
-      if (!value)
-        tableData.value.push({
-          id: key,
-          count: value,
-        })
-    })
-  }
+const scrollToTable = () => {
+  document.getElementById('table')?.scrollIntoView({ behavior: 'smooth' })
 }
 </script>
